@@ -236,6 +236,7 @@ export async function generateImages(
     status = result[historyId].status;
     failCode = result[historyId].fail_code;
     item_list = result[historyId].item_list;
+    logger.info(`请求结果 = ${JSON.stringify(result)}`);
   }
   if (status === 30) {
     if (failCode === '2038')
