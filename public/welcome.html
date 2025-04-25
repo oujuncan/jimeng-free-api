@@ -2,9 +2,481 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <title>🚀 服务已启动</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚀 jimeng-free-api服务</title>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1100px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                background-color: #fff;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                padding: 25px;
+                margin-bottom: 20px;
+            }
+            h1, h2, h3 {
+                color: #2c3e50;
+            }
+            .card {
+                border: 1px solid #eaeaea;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+                background-color: #fff;
+                transition: all 0.3s ease;
+            }
+            .card:hover {
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+            }
+            input[type="text"] {
+                width: 100%;
+                padding: 12px;
+                margin: 10px 0;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 16px;
+            }
+            button {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                transition: background-color 0.3s;
+            }
+            button:hover {
+                background-color: #2980b9;
+            }
+            .token-stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 15px;
+                margin-top: 20px;
+            }
+            .token-card {
+                border: 1px solid #eaeaea;
+                border-radius: 8px;
+                padding: 15px;
+                background-color: #f9f9f9;
+            }
+            .token-card h3 {
+                margin-top: 0;
+                font-size: 16px;
+                word-break: break-all;
+            }
+            .stat-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 5px 0;
+                font-size: 14px;
+            }
+            .credit-bar {
+                height: 10px;
+                background-color: #ecf0f1;
+                border-radius: 5px;
+                margin: 10px 0;
+                overflow: hidden;
+            }
+            .credit-bar-fill {
+                height: 100%;
+                background-color: #2ecc71;
+                border-radius: 5px;
+            }
+            .stats-overview {
+                background-color: #f0f7ff;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            .low-credit {
+                color: #e74c3c;
+            }
+            .loader {
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #3498db;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+                margin: 20px auto;
+                display: none;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .error-message {
+                color: #e74c3c;
+                padding: 10px;
+                background-color: #ffeaea;
+                border-radius: 4px;
+                margin: 10px 0;
+                display: none;
+            }
+            .success-message {
+                color: #27ae60;
+                padding: 10px;
+                background-color: #e7ffe8;
+                border-radius: 4px;
+                margin: 10px 0;
+                display: none;
+            }
+            .hidden {
+                display: none;
+            }
+            .tab {
+                overflow: hidden;
+                border: 1px solid #ccc;
+                background-color: #f1f1f1;
+                border-radius: 4px 4px 0 0;
+            }
+            .tab button {
+                background-color: inherit;
+                float: left;
+                border: none;
+                outline: none;
+                cursor: pointer;
+                padding: 12px 16px;
+                transition: 0.3s;
+                font-size: 15px;
+                color: #333;
+            }
+            .tab button:hover {
+                background-color: #ddd;
+            }
+            .tab button.active {
+                background-color: #3498db;
+                color: white;
+            }
+            .tabcontent {
+                display: none;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-top: none;
+                border-radius: 0 0 4px 4px;
+                animation: fadeEffect 1s;
+            }
+            @keyframes fadeEffect {
+                from {opacity: 0;}
+                to {opacity: 1;}
+            }
+            .last-updated {
+                font-size: 14px;
+                color: #7f8c8d;
+                text-align: right;
+                margin-top: 10px;
+            }
+        </style>
     </head>
     <body>
-        <p>jimeng-free-api已启动！<br>请通过LobeChat / NextChat / Dify等客户端或OpenAI SDK接入！</p>
+        <div class="container">
+            <h1>jimeng-free-api 服务状态</h1>
+            <p>服务已成功启动！请通过LobeChat / NextChat / Dify等客户端或OpenAI SDK接入。</p>
+
+            <div class="tab">
+                <button class="tablinks active" onclick="openTab(event, 'token-tab')">令牌状态</button>
+                <button class="tablinks" onclick="openTab(event, 'usage-tab')">使用说明</button>
+            </div>
+
+            <div id="token-tab" class="tabcontent" style="display: block;">
+                <div id="auth-section">
+                    <h2>令牌认证</h2>
+                    <p>请输入您的授权令牌（形如Bearer token1,token2,token3）以查看令牌状态：</p>
+                    <input type="text" id="authorization" placeholder="Bearer token1,token2,token3">
+                    <button id="auth-button">提交</button>
+                    <div class="error-message" id="error-msg"></div>
+                    <div class="success-message" id="success-msg"></div>
+                </div>
+
+                <div id="stats-section" class="hidden">
+                    <h2>令牌统计 <button id="refresh-button">刷新</button></h2>
+                    <div class="loader" id="loader"></div>
+                    
+                    <div class="stats-overview" id="stats-overview">
+                        <h3>总体统计</h3>
+                        <div class="stat-row">
+                            <span>总令牌数量：</span>
+                            <span id="total-tokens">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>可用令牌数量：</span>
+                            <span id="available-tokens">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>总调用次数：</span>
+                            <span id="total-calls">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>成功调用次数：</span>
+                            <span id="success-calls">-</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>总体成功率：</span>
+                            <span id="success-rate">-</span>
+                        </div>
+                    </div>
+
+                    <h3>令牌详情</h3>
+                    <div class="token-stats" id="token-stats">
+                        <!-- 令牌卡片将在这里动态生成 -->
+                    </div>
+                    <div class="last-updated" id="last-updated"></div>
+                </div>
+            </div>
+
+            <div id="usage-tab" class="tabcontent">
+                <h2>使用说明</h2>
+                <div class="card">
+                    <h3>如何接入</h3>
+                    <p>1. 在客户端配置API Base URL为该服务地址</p>
+                    <p>2. 使用Jimeng令牌作为API Key</p>
+                    <p>3. 支持OpenAI兼容客户端，如LobeChat、NextChat、Dify等</p>
+                </div>
+                <div class="card">
+                    <h3>令牌管理</h3>
+                    <p>本服务支持多令牌负载均衡，基于令牌积分和成功率加权轮询</p>
+                    <p>您可以输入多个令牌（以逗号分隔）提高服务可用性</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // 打开标签
+            function openTab(evt, tabName) {
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+            }
+
+            // 获取元素
+            const authSection = document.getElementById('auth-section');
+            const statsSection = document.getElementById('stats-section');
+            const authInput = document.getElementById('authorization');
+            const authButton = document.getElementById('auth-button');
+            const refreshButton = document.getElementById('refresh-button');
+            const loader = document.getElementById('loader');
+            const errorMsg = document.getElementById('error-msg');
+            const successMsg = document.getElementById('success-msg');
+            const tokenStats = document.getElementById('token-stats');
+            const lastUpdated = document.getElementById('last-updated');
+
+            // 总体统计元素
+            const totalTokens = document.getElementById('total-tokens');
+            const availableTokens = document.getElementById('available-tokens');
+            const totalCalls = document.getElementById('total-calls');
+            const successCalls = document.getElementById('success-calls');
+            const successRate = document.getElementById('success-rate');
+
+            // 检查本地存储中是否有授权信息
+            const savedAuth = localStorage.getItem('jimeng_auth');
+            if (savedAuth) {
+                authInput.value = savedAuth;
+                // 自动加载令牌状态
+                setTimeout(fetchTokenStats, 500);
+            }
+
+            // 添加事件监听器
+            authButton.addEventListener('click', fetchTokenStats);
+            refreshButton.addEventListener('click', fetchTokenStats);
+
+            // 获取令牌统计信息
+            function fetchTokenStats() {
+                const authorization = authInput.value.trim();
+                if (!authorization) {
+                    showError('请输入授权令牌');
+                    return;
+                }
+
+                // 保存到本地存储
+                localStorage.setItem('jimeng_auth', authorization);
+
+                // 显示加载器
+                loader.style.display = 'block';
+                errorMsg.style.display = 'none';
+                successMsg.style.display = 'none';
+
+                // 调用API获取令牌统计信息
+                fetch('/token/stats', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authorization
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`请求失败: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 隐藏授权部分，显示统计部分
+                    authSection.style.display = 'none';
+                    statsSection.classList.remove('hidden');
+                    
+                    // 显示成功消息
+                    showSuccess('令牌状态加载成功');
+                    
+                    // 显示令牌统计信息
+                    renderTokenStats(data);
+                })
+                .catch(error => {
+                    showError(`获取令牌状态失败: ${error.message}`);
+                })
+                .finally(() => {
+                    loader.style.display = 'none';
+                });
+            }
+
+            // 显示错误消息
+            function showError(message) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            }
+
+            // 显示成功消息
+            function showSuccess(message) {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }
+
+            // 渲染令牌统计信息
+            function renderTokenStats(data) {
+                // 更新总体统计
+                totalTokens.textContent = data.overall.totalTokens;
+                availableTokens.textContent = data.overall.availableTokens;
+                totalCalls.textContent = data.overall.totalCalls;
+                successCalls.textContent = data.overall.totalSuccessCalls;
+                successRate.textContent = data.overall.overallSuccessRate;
+
+                // 更新最后更新时间
+                lastUpdated.textContent = `最后更新: ${new Date().toLocaleString()}`;
+
+                // 清空令牌统计区域
+                tokenStats.innerHTML = '';
+
+                // 添加令牌卡片
+                data.tokens.forEach(token => {
+                    const tokenCard = document.createElement('div');
+                    tokenCard.className = 'token-card';
+
+                    const isAvailable = token.points.isAvailable;
+                    const tokenTitle = document.createElement('h3');
+                    tokenTitle.textContent = token.token;
+                    if (!isAvailable) {
+                        tokenTitle.className = 'low-credit';
+                    }
+                    tokenCard.appendChild(tokenTitle);
+
+                    // 积分信息
+                    const creditInfo = document.createElement('div');
+                    if (token.points) {
+                        // 积分条
+                        const creditBar = document.createElement('div');
+                        creditBar.className = 'credit-bar';
+                        const creditBarFill = document.createElement('div');
+                        creditBarFill.className = 'credit-bar-fill';
+                        creditBarFill.style.width = `${Math.min(token.points.totalCredit, 100)}%`;
+                        creditBar.appendChild(creditBarFill);
+                        tokenCard.appendChild(creditBar);
+
+                        // 积分详情
+                        const totalCredit = document.createElement('div');
+                        totalCredit.className = 'stat-row';
+                        totalCredit.innerHTML = `<span>总积分:</span> <span>${token.points.totalCredit || 0}</span>`;
+                        creditInfo.appendChild(totalCredit);
+
+                        const giftCredit = document.createElement('div');
+                        giftCredit.className = 'stat-row';
+                        giftCredit.innerHTML = `<span>赠送积分:</span> <span>${token.points.giftCredit || 0}</span>`;
+                        creditInfo.appendChild(giftCredit);
+
+                        const purchaseCredit = document.createElement('div');
+                        purchaseCredit.className = 'stat-row';
+                        purchaseCredit.innerHTML = `<span>购买积分:</span> <span>${token.points.purchaseCredit || 0}</span>`;
+                        creditInfo.appendChild(purchaseCredit);
+
+                        const vipCredit = document.createElement('div');
+                        vipCredit.className = 'stat-row';
+                        vipCredit.innerHTML = `<span>VIP积分:</span> <span>${token.points.vipCredit || 0}</span>`;
+                        creditInfo.appendChild(vipCredit);
+                    } else {
+                        const noCredit = document.createElement('div');
+                        noCredit.className = 'stat-row';
+                        noCredit.innerHTML = '<span>积分信息:</span> <span>未获取</span>';
+                        creditInfo.appendChild(noCredit);
+                    }
+                    tokenCard.appendChild(creditInfo);
+
+                    // 使用统计
+                    const usageInfo = document.createElement('div');
+                    usageInfo.style.marginTop = '10px';
+
+                    const totalCalls = document.createElement('div');
+                    totalCalls.className = 'stat-row';
+                    totalCalls.innerHTML = `<span>总调用:</span> <span>${token.usage.totalCalls || 0}</span>`;
+                    usageInfo.appendChild(totalCalls);
+
+                    const successCalls = document.createElement('div');
+                    successCalls.className = 'stat-row';
+                    successCalls.innerHTML = `<span>成功调用:</span> <span>${token.usage.successCalls || 0}</span>`;
+                    usageInfo.appendChild(successCalls);
+
+                    const successRateEl = document.createElement('div');
+                    successRateEl.className = 'stat-row';
+                    successRateEl.innerHTML = `<span>成功率:</span> <span>${token.usage.successRate || 'N/A'}</span>`;
+                    usageInfo.appendChild(successRateEl);
+
+                    const lastUsed = document.createElement('div');
+                    lastUsed.className = 'stat-row';
+                    lastUsed.innerHTML = `<span>最后使用:</span> <span>${token.usage.lastUsed !== 'N/A' ? new Date(token.usage.lastUsed).toLocaleString() : 'N/A'}</span>`;
+                    usageInfo.appendChild(lastUsed);
+
+                    tokenCard.appendChild(usageInfo);
+
+                    // 添加状态标记
+                    const status = document.createElement('div');
+                    status.className = 'stat-row';
+                    status.style.marginTop = '10px';
+                    status.innerHTML = `<span>状态:</span> <span style="color: ${isAvailable ? '#27ae60' : '#e74c3c'}">${isAvailable ? '可用' : '不可用'}</span>`;
+                    tokenCard.appendChild(status);
+
+                    tokenStats.appendChild(tokenCard);
+                });
+            }
+
+            // 退出统计视图，返回到授权输入
+            document.getElementById('auth-section').addEventListener('click', function(e) {
+                if (e.target.id === 'back-button') {
+                    statsSection.classList.add('hidden');
+                    authSection.style.display = 'block';
+                }
+            });
+        </script>
     </body>
 </html>

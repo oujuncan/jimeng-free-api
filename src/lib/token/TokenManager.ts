@@ -71,9 +71,9 @@ class TokenManager {
     }
 
     // 如果距离上次刷新时间超过了刷新间隔，则刷新积分
-    if (currentTime - this.lastRefreshed > this.REFRESH_INTERVAL) {
+    // if (currentTime - this.lastRefreshed > this.REFRESH_INTERVAL) {
       await this.refreshTokenPoints();
-    }
+    // }
   }
 
   /**
