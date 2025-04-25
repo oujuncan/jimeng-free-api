@@ -38,8 +38,22 @@ export async function generateImages(
   },
   refreshToken: string
 ) {
+  // 确保width和height是数字类型
+  const safeWidth = typeof width === 'string' ? parseInt(width) : width;
+  const safeHeight = typeof height === 'string' ? parseInt(height) : height;
+  const safeSampleStrength = typeof sampleStrength === 'string' ? parseFloat(sampleStrength) : sampleStrength;
+  
+  // 验证解析后的值是否有效
+  const finalWidth = isNaN(safeWidth) ? 1024 : Math.ceil(safeWidth / 2) * 2; // 确保是偶数
+  const finalHeight = isNaN(safeHeight) ? 1024 : Math.ceil(safeHeight / 2) * 2; // 确保是偶数
+  const finalSampleStrength = isNaN(safeSampleStrength) ? 0.5 : safeSampleStrength;
+  
+  // 详细记录原始输入和处理后的值
+  logger.info(`[参数详情] 原始参数 - model: ${_model}, width: ${width} (${typeof width}), height: ${height} (${typeof height}), sampleStrength: ${sampleStrength} (${typeof sampleStrength})`);
+  logger.info(`[参数详情] 处理后参数 - width: ${finalWidth}, height: ${finalHeight}, sampleStrength: ${finalSampleStrength}`);
+  
   const model = getModel(_model);
-  logger.info(`使用模型: ${_model} 映射模型: ${model} ${width}x${height} 精细度: ${sampleStrength}`);
+  logger.info(`使用模型: ${_model} 映射模型: ${model} ${finalWidth}x${finalHeight} 精细度: ${finalSampleStrength}`);
 
   const { totalCredit } = await getCredit(refreshToken);
   if (totalCredit <= 0)
@@ -102,13 +116,13 @@ export async function generateImages(
                     prompt,
                     negative_prompt: negativePrompt,
                     seed: Math.floor(Math.random() * 100000000) + 2500000000,
-                    sample_strength: sampleStrength,
+                    sample_strength: finalSampleStrength,
                     image_ratio: 1,
                     large_image_info: {
                       type: "",
                       id: util.uuid(),
-                      height,
-                      width,
+                      height: finalHeight,
+                      width: finalWidth,
                     },
                   },
                   history_option: {
@@ -236,7 +250,6 @@ export async function generateImages(
     status = result[historyId].status;
     failCode = result[historyId].fail_code;
     item_list = result[historyId].item_list;
-    logger.info(`请求结果 = ${JSON.stringify(result)}`);
   }
   if (status === 30) {
     if (failCode === '2038')

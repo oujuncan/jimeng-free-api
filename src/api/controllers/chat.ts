@@ -19,12 +19,57 @@ const RETRY_DELAY = 5000;
  * @returns 模型信息
  */
 function parseModel(model: string) {
+  // 在日志中记录原始模型值
+  logger.info(`[解析模型] 原始模型值: "${model}" (${typeof model})`);
+  
+  if (!model || typeof model !== 'string') {
+    logger.warn(`[解析模型] 模型参数无效，使用默认值 - model: ${DEFAULT_MODEL}, width: 1024, height: 1024`);
+    return {
+      model: DEFAULT_MODEL,
+      width: 1024,
+      height: 1024
+    };
+  }
+  
   const [_model, size] = model.split(":");
-  const [_, width, height] = /(\d+)[\W\w](\d+)/.exec(size) ?? [];
+  logger.info(`[解析模型] 分割结果 - model: "${_model}", size: "${size}"`);
+  
+  if (!size) {
+    logger.info(`[解析模型] 无尺寸信息，使用默认尺寸 - model: ${_model}, width: 1024, height: 1024`);
+    return {
+      model: _model,
+      width: 1024,
+      height: 1024,
+    };
+  }
+  
+  // 改进尺寸解析，支持更多格式，如 1024x1024、1024*1024、1024-1024
+  const sizeMatch = size.match(/(\d+)[\W\w](\d+)/);
+  logger.info(`[解析模型] 尺寸匹配结果: ${JSON.stringify(sizeMatch)}`);
+  
+  if (!sizeMatch) {
+    logger.warn(`[解析模型] 尺寸格式无法解析，使用默认尺寸 - model: ${_model}, size: ${size}, width: 1024, height: 1024`);
+    return {
+      model: _model,
+      width: 1024,
+      height: 1024,
+    };
+  }
+  
+  const [_, widthStr, heightStr] = sizeMatch;
+  const width = parseInt(widthStr);
+  const height = parseInt(heightStr);
+  
+  // 确保宽高是有效的数字并且是偶数
+  const finalWidth = isNaN(width) ? 1024 : Math.ceil(width / 2) * 2;
+  const finalHeight = isNaN(height) ? 1024 : Math.ceil(height / 2) * 2;
+  
+  logger.info(`[解析模型] 解析完成 - model: ${_model}, width: ${finalWidth}, height: ${finalHeight}`);
+  
   return {
     model: _model,
-    width: size ? Math.ceil(parseInt(width) / 2) * 2 : 1024,
-    height: size ? Math.ceil(parseInt(height) / 2) * 2 : 1024,
+    width: finalWidth,
+    height: finalHeight,
   };
 }
 
